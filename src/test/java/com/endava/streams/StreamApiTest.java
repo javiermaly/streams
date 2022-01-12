@@ -1,12 +1,17 @@
 package com.endava.streams;
 
+import com.endava.streams.models.Product;
 import com.endava.streams.repos.CustomerRepo;
+import com.endava.streams.repos.ProductRepo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @DataJpaTest
@@ -15,11 +20,17 @@ public class StreamApiTest {
     @Autowired
     private CustomerRepo customerRepo;
 
+    @Autowired
+    private ProductRepo productRepo;
+
     @Test
     @DisplayName("Obtain a list of product with category = \"Books\" and price > 100")
     public void exercise1() {
-        //testing data
-        customerRepo.findAll().forEach(x -> log.info(x.toString()));
+        List<Product> products =
+        productRepo.findAll().stream()
+                .filter( product -> product.getCategory().equalsIgnoreCase("Books"))
+                .filter(product -> product.getPrice() > 100).collect(Collectors.toList());
+        products.forEach(product -> log.info(product.toString()));
     }
 /*
 	@Test
