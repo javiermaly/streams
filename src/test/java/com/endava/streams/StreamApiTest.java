@@ -1,14 +1,15 @@
 package com.endava.streams;
 
+import com.endava.streams.models.Order;
 import com.endava.streams.models.Product;
 import com.endava.streams.repos.CustomerRepo;
+import com.endava.streams.repos.OrderRepo;
 import com.endava.streams.repos.ProductRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,28 +24,34 @@ public class StreamApiTest {
     @Autowired
     private ProductRepo productRepo;
 
+    @Autowired
+    private OrderRepo orderRepo;
+
     @Test
     @DisplayName("Obtain a list of product with category = \"Books\" and price > 100")
     public void exercise1() {
-        List<Product> products =
-        productRepo.findAll().stream()
-                .filter( product -> product.getCategory().equalsIgnoreCase("Books"))
-                .filter(product -> product.getPrice() > 100).collect(Collectors.toList());
+        List<Product> products = productRepo.findAll().stream().filter(product -> product.getCategory().equalsIgnoreCase("Books")).filter(product -> product.getPrice() > 100).collect(Collectors.toList());
         products.forEach(product -> log.info(product.toString()));
     }
+
+    @Test
+    @DisplayName("Obtain a list of order with product category = \"Baby\"")
+    public void exercise2() {
+        List<Order> orders = orderRepo.findAll().stream().filter(order -> order.getProducts().stream().anyMatch(product -> product.getCategory().equalsIgnoreCase("baby"))).collect(Collectors.toList());
+        orders.forEach(order -> log.info(order.toString()));
+    }
+
+    @Test
+    @DisplayName("Obtain a list of product with category = “Toys” and then apply 10% discount\"")
+    public void exercise3() {
+        List<Product> products = productRepo.findAll().stream()
+                .filter(product -> product.getCategory().equalsIgnoreCase("toys"))
+                .map(product -> product.withPrice((double) Math.round(product.getPrice() * 0.9)))
+                .collect(Collectors.toList());
+        products.forEach(product -> log.info(product.toString()));
+
+    }
 /*
-	@Test
-	@DisplayName("Obtain a list of order with product category = \"Baby\"")
-	public void exercise2() {
-
-	}
-
-	@Test
-	@DisplayName("Obtain a list of product with category = “Toys” and then apply 10% discount\"")
-	public void exercise3() {
-
-	}
-
 	@Test
 	@DisplayName("Obtain a list of products ordered by customer of tier 2 between 01-Feb-2021 and 01-Apr-2021")
 	public void exercise4() {
